@@ -1,4 +1,6 @@
 import express from "express";
+import bcrypt from "bcrypt";
+
 const router = express.Router();
 
 export default (db: any) => {
@@ -23,12 +25,16 @@ export default (db: any) => {
         }
 
         if (results.length === 0) {
-          return res.status(400).json({ message: "User Not Found" });
+          return res.status(404).json({ message: "User Not Found" });
         }
 
         const user = results[0];
 
-        if (password != user.password_hash) {
+        const isPasswordValid = await bcrypt.compare(
+          password,
+          user.password_hash
+        );
+        if (!isPasswordValid) {
           return res.status(401).json({ Message: "Invalid Password" });
         }
 

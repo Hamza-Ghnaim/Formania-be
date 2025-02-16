@@ -1,7 +1,9 @@
 import express from "express";
 import LoginRouter from "./routes/login.js";
+import registerRouter from "./routes/registration.js";
 import mysql from "mysql2";
 import dotenv from "dotenv";
+import cors from "cors";
 
 dotenv.config({ path: "./.env" });
 const app = express();
@@ -11,6 +13,13 @@ const db = mysql.createConnection({
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE,
 });
+
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 
 db.connect((error: any) => {
   if (error) {
@@ -25,6 +34,8 @@ app.use(express.json());
 
 //Login Router
 app.use("/auth", LoginRouter(db));
+
+app.use("/auth", registerRouter(db));
 
 //Default Route
 app.get("/", (req, res) => {
