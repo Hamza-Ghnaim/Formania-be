@@ -6,7 +6,7 @@ import AuthRouter from "./routes/me.js";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { pool } from "./config/db.js";
+import { sequelize } from "./config/db.js";
 
 dotenv.config({ path: "./.env" });
 const app = express();
@@ -26,11 +26,10 @@ app.use(
 
 async function testDbConnection() {
   try {
-    const connection = await pool.getConnection();
-    console.log("MySQL Connected ...");
-    connection.release();
+    await sequelize.authenticate();
+    console.log("Sequelize: MySQL Connected...");
   } catch (error) {
-    console.error("MySQL Connection Error,", error);
+    console.error("Sequelize Connection Error:", error);
     process.exit(1);
   }
 }
@@ -49,9 +48,9 @@ app.use(cookieParser());
 app.use(express.json());
 
 //Login Router
-app.use("/auth", LoginRouter(pool));
+app.use("/auth", LoginRouter);
 
-app.use("/auth", registerRouter(pool));
+app.use("/auth", registerRouter);
 
 app.use("/auth", AuthRouter());
 
