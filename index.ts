@@ -61,7 +61,7 @@ app.get("/", (req, res) => {
   res.send("Welcome to the default route");
 });
 
-const PORT = 5000;
+const PORT = 5001;
 
 testDbConnection().then(() => {
   app.listen(PORT, () =>
