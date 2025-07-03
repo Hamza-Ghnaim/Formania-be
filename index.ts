@@ -7,6 +7,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { sequelize } from "./config/db.js";
+import FormRoute from "./routes/form.js";
+import { Form } from "./models/Form.js";
 
 dotenv.config({ path: "./.env" });
 const app = express();
@@ -56,6 +58,8 @@ app.use("/auth", AuthRouter());
 
 app.use("/auth", checkRoter());
 
+app.use("/forms", FormRoute);
+
 //Default Route
 app.get("/", (req, res) => {
   res.send("Welcome to the default route");
@@ -63,8 +67,17 @@ app.get("/", (req, res) => {
 
 const PORT = 5001;
 
-testDbConnection().then(() => {
-  app.listen(PORT, () =>
-    console.log(`Server Running on port: http://localhost:${PORT}`)
-  );
-});
+testDbConnection()
+  .then(() => {
+    return sequelize.sync({ alter: true }); // auto-create/alter tables
+  })
+  .then(() => {
+    console.log("✅ Sequelize models synced");
+    app.listen(PORT, () =>
+      console.log(`🚀 Server Running on port: http://localhost:${PORT}`)
+    );
+  })
+  .catch((err) => {
+    console.error("❌ Startup Error:", err);
+    process.exit(1);
+  });
